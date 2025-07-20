@@ -1,0 +1,399 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ABC Diatype Font */
+@font-face {
+  font-family: 'ABC Diatype';
+  src: url('/fonts/abc-diatype-regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --color-bg: #F1F3F7;
+  --color-text: #44272C;
+  --color-pill: #fff;
+  --color-pill-text: #3a2323;
+  --color-tile: #fff;
+  --color-tile-border: #e0e0e0;
+  --color-tile-value: #333;
+  --color-accent: #ff6b35;
+  --color-pill-border: #e0e0e0;
+}
+
+html, body {
+  height: 100vh;
+  overflow: hidden;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'ABC Diatype', 'Inter', sans-serif;
+}
+
+/* Game Container */
+.game-container {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 2rem;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.game-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* Target number styling */
+.target-number {
+  font-size: 2rem;
+  font-weight: normal;
+  color: #fff;
+  background-image: url('/target-number-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.target-number span {
+  position: relative;
+  z-index: 2;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Tiles container */
+.tiles-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tiles-row {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+/* Tile styles (base and input variant) */
+.tile, .input-tile {
+  background: var(--color-tile);
+  border: 1.5px solid var(--color-tile-border);
+  color: var(--color-tile-value);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  font-size: 1.2rem;
+  font-weight: normal;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: visible;
+}
+.input-tile {
+  box-shadow: none;
+  cursor: default;
+}
+
+.tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 165, 0, 0.5);
+}
+
+.tile.selected {
+  border-color: var(--color-accent);
+  background: #fff8f0;
+}
+
+.tile-value {
+  font-size: 1.2rem;
+  font-weight: normal;
+  color: var(--color-tile-value);
+  position: relative;
+  z-index: 2;
+}
+
+.tile-letter {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid #ddd;
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-image: var(--letter-bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 3;
+  color: var(--color-tile-value);
+}
+
+/* Input area */
+.input-area {
+  /* Remove all visual effects, backgrounds, outlines, borders, and blurs */
+  border-radius: 0;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 300px;
+  /* Removed: background, backdrop-filter, border, outline, etc. */
+}
+
+.input-pill, .pill {
+  background: var(--color-pill);
+  color: var(--color-pill-text);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--color-pill-border);
+  min-width: 64px;
+  min-height: 40px;
+  box-shadow: none;
+  font-size: 1rem;
+  font-weight: normal;
+  letter-spacing: 0.05em;
+  padding: 0.5em 1.25em;
+}
+.pill:active, .pill:focus {
+  background: #f3f3f3;
+}
+
+.input-letters {
+  font-size: 1.5rem;
+  font-weight: normal;
+  color: white;
+  letter-spacing: 0.5rem;
+}
+
+.input-values {
+  font-size: 1rem;
+  color: #ccc;
+  text-align: center;
+}
+
+/* Bottom controls */
+.bottom-controls {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.correct-combinations {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 1rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  min-width: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.correct-combinations h3 {
+  color: white;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.combination-item {
+  color: #ccc;
+  font-size: 0.8rem;
+  margin-bottom: 0.25rem;
+  text-align: center;
+}
+
+.game-stats {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 1rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+}
+
+.timer {
+  color: white;
+  font-size: 1.2rem;
+  font-weight: normal;
+}
+
+.points {
+  color: var(--color-accent);
+  font-size: 1.5rem;
+  font-weight: normal;
+}
+
+.reset-button {
+  background: var(--color-pill);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.reset-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.reset-button svg {
+  width: 20px;
+  height: 20px;
+  color: var(--color-tile-value);
+}
+
+.fixed-pill-row {
+  position: fixed;
+  bottom: 2rem;
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  z-index: 10;
+  padding: 0.1rem 0;
+}
+.fixed-pill-row.left {
+  left: 2rem;
+}
+.fixed-pill-row.right {
+  right: 2rem;
+}
+
+.fixed-input-row {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 12;
+  margin: 0;
+  padding: 0 !important;
+}
+
+/* Remove extra space for input area only in fixed input row */
+.fixed-input-row .input-area {
+  padding: 0 !important;
+  min-width: 0 !important;
+}
+
+.game-stats-restart {
+  min-width: 3.5em;
+}
+
+.debug-panel {
+  position: fixed;
+  top: 2rem;
+  left: 2rem;
+  max-height: 40vh;
+  min-width: 220px;
+  max-width: 320px;
+  overflow-y: auto;
+  background: rgba(255,255,255,0.92);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  padding: 1rem 1.25rem;
+  z-index: 20;
+  font-size: 1rem;
+}
+.debug-panel h3 {
+  color: #222;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .game-container {
+    padding: 1rem;
+  }
+  
+  .target-number {
+    width: 100px;
+    height: 100px;
+    font-size: 3rem;
+    background-size: cover;
+  }
+  
+  .tile, .input-tile {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .tile-value {
+    font-size: 1rem;
+  }
+  
+  .tile-letter {
+    width: 24px;
+    height: 24px;
+    top: -6px;
+  }
+  
+  .bottom-controls {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .correct-combinations,
+  .game-stats {
+    min-width: 100%;
+  }
+} 
