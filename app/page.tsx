@@ -26,6 +26,16 @@ export default function Home() {
   })
 
   const [currentBackgroundIndex, setCurrentBackgroundIndex] = useState(0)
+  const [showDebugPanel, setShowDebugPanel] = useState(false)
+  const [imagesLoaded, setImagesLoaded] = useState(false)
+  const [showGameOver, setShowGameOver] = useState(false)
+
+  // Format time helper function
+  const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
+  }
 
   // Dynamic background images - manually update this array as needed
   const backgroundImages = useMemo(() => [
@@ -33,6 +43,30 @@ export default function Home() {
     '/background-images/flower-6.png',
     '/background-images/flower-7.png',
   ], [])
+
+  // Preload all background images
+  useEffect(() => {
+    const preloadImages = async () => {
+      const imagePromises = backgroundImages.map((src) => {
+        return new Promise((resolve, reject) => {
+          const img = new Image()
+          img.onload = () => resolve(src)
+          img.onerror = () => reject(src)
+          img.src = src
+        })
+      })
+
+      try {
+        await Promise.all(imagePromises)
+        setImagesLoaded(true)
+      } catch (error) {
+        console.warn('Some background images failed to load:', error)
+        setImagesLoaded(true) // Continue anyway
+      }
+    }
+
+    preloadImages()
+  }, [backgroundImages])
 
   // Simple background cycling function
   const cycleBackground = useCallback(() => {
@@ -48,6 +82,9 @@ export default function Home() {
 
     // Cycle to next background
     cycleBackground()
+
+    // Hide game over screen
+    setShowGameOver(false)
 
     setGameState({
       isPlaying: true,
@@ -65,9 +102,11 @@ export default function Home() {
 
   // Automatically start a new game on mount
   useEffect(() => {
-    startNewGame();
+    if (imagesLoaded) {
+      startNewGame();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [imagesLoaded]);
 
   // Timer effect
   useEffect(() => {
@@ -88,6 +127,7 @@ export default function Home() {
         }
 
         if (newTimeRemaining <= 0) {
+          setShowGameOver(true)
           return {
             ...prev,
             isPlaying: false,
@@ -151,6 +191,13 @@ export default function Home() {
 
     const handleKeyPress = (event: KeyboardEvent) => {
       const key = event.key.toUpperCase()
+      
+      // Debug panel toggle
+      if (event.shiftKey && key === 'H') {
+        setShowDebugPanel(prev => !prev)
+        return
+      }
+      
       // Only allow single-letter keys A-J for tile input
       if (key.length === 1 && key >= 'A' && key <= 'J') {
         const tileIndex = key.charCodeAt(0) - 65
@@ -185,22 +232,206 @@ export default function Home() {
   }, [gameState.currentInput, checkCombination])
 
   return (
-    <div className="game-container" style={{ outline: '3px solid red', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div 
-        className="game-content"
-        style={{ 
-          backgroundImage: `url(${backgroundImages[currentBackgroundIndex]})`,
-          backgroundSize: 'contain',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          height: '90vh',
-        }}
-      >
-        <GameBoard 
-          gameState={gameState}
-          onStartGame={startNewGame}
-          onResetGame={startNewGame}
-        />
+    <div className="page-fade-in" style={{ position: 'relative', width: '100vw', height: '100vh' }}>
+      {/* Loading state */}
+      {!imagesLoaded && (
+        <div style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 10000,
+          color: '#44272C',
+          fontSize: '18px',
+          fontWeight: 300
+        }}>
+          Loading...
+        </div>
+      )}
+
+      {/* Game Over Screen */}
+      {showGameOver && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10000,
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '20px',
+            padding: '3rem',
+            textAlign: 'center',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+            maxWidth: '400px',
+            width: '90%',
+          }}>
+            <h2 style={{
+              color: '#44272C',
+              fontSize: '2rem',
+              fontWeight: 300,
+              marginBottom: '1rem',
+            }}>
+              Game Over!
+            </h2>
+            <p style={{
+              color: '#44272C',
+              fontSize: '1.2rem',
+              marginBottom: '2rem',
+            }}>
+              Final Score: <strong>{gameState.score} points</strong>
+            </p>
+            <button
+              onClick={startNewGame}
+              style={{
+                background: '#44272C',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50px',
+                padding: '1rem 2rem',
+                fontSize: '1.1rem',
+                fontWeight: 300,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#5a3238'
+                e.currentTarget.style.transform = 'scale(1.05)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#44272C'
+                e.currentTarget.style.transform = 'scale(1)'
+              }}
+            >
+              Play Again
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Header - Upper Left Corner */}
+      <div style={{ 
+        position: 'fixed', 
+        top: '16px', 
+        left: '16px', 
+        zIndex: 9999, 
+        pointerEvents: 'none',
+        color: '#44272C',
+        fontSize: '14px',
+        fontWeight: 300
+      }}>
+        <div>Devil's Plant</div>
+        <div>By <a href="https://www.linkedin.com/in/karissa-wong/" target="_blank" rel="noopener noreferrer" style={{ color: '#44272C', textDecoration: 'underline', pointerEvents: 'auto' }}>Karissa Wong</a></div>
+      </div>
+
+      {/* Header - Upper Right Corner */}
+      <div style={{ 
+        position: 'fixed', 
+        top: '16px', 
+        right: '16px', 
+        zIndex: 9999, 
+        pointerEvents: 'none',
+        color: '#44272C',
+        fontSize: '14px',
+        fontWeight: 300,
+        textAlign: 'right'
+      }}>
+        <div>Have fun!</div>
+        <div style={{ pointerEvents: 'auto' }}>
+          <a href="https://github.com/KarissaWong/devils-plant" target="_blank" rel="noopener noreferrer" style={{ color: '#44272C', textDecoration: 'underline' }}>
+            Github link
+          </a>
+        </div>
+      </div>
+
+      <div className="game-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div 
+          key={`background-${currentBackgroundIndex}`}
+          className="background-fade-in game-content"
+          style={{ 
+            backgroundImage: `url(${backgroundImages[currentBackgroundIndex]})`,
+            backgroundSize: 'contain',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            height: '90vh',
+          }}
+        >
+          <GameBoard 
+            gameState={gameState}
+            onStartGame={startNewGame}
+            onResetGame={startNewGame}
+            showDebugPanel={showDebugPanel}
+          />
+        </div>
+      </div>
+
+      {/* Fixed correct answers row - moved outside container */}
+      <div className="fixed-pill-row left">
+        {gameState.correctCombinations.length > 3 && (
+          <span className="pill" style={{ opacity: 0.6, fontWeight: 400 }}>
+            +{gameState.correctCombinations.length - 3} more
+          </span>
+        )}
+        {gameState.correctCombinations.slice(-3).map((combo, idx) => (
+          <span key={idx} className="pill">{combo.letters}</span>
+        ))}
+      </div>
+
+      {/* Fixed game stats row - moved outside container */}
+      <div className="fixed-pill-row right">
+        <span className="pill">{formatTime(gameState.timeRemaining)}</span>
+        <span className="pill">{gameState.score} pts</span>
+        <button className="pill game-stats-restart" onClick={startNewGame} aria-label="Restart">
+          <span style={{fontSize: '1.3em', marginRight: '0.3em', display: 'inline-block', verticalAlign: 'middle'}}>&#8634;</span>
+          <span style={{fontSize: '0.95em', verticalAlign: 'middle'}}>(R)</span>
+        </button>
+      </div>
+
+      {/* Fixed input row - moved outside container */}
+      <div className="fixed-input-row">
+        <div className="input-area flex flex-col items-center gap-0">
+          {/* Circular containers for tile values - only render if there are tiles */}
+          {gameState.currentInput.length > 0 && (
+            <div className="flex flex-row mb-2" style={{ display: 'flex', gap: '0.5em' }}>
+              {gameState.currentInput.map((input, idx) => (
+                <div 
+                  key={`${input.letter}-${idx}`} 
+                  className="tile input-tile input-tile-appear flex items-center justify-center text-xl" 
+                  style={{width: '64px', height: '64px', minWidth: '64px', minHeight: '64px'}}
+                >
+                  {input.tile.value}
+                </div>
+              ))}
+            </div>
+          )}
+          {/* Pill for letter inputs */}
+          {(gameState.currentInput.length > 0 || (gameState.correctCombinations.length === 0 && gameState.score === 0)) && (
+            <div
+              className={`pill input-pill text-2xl py-2 mb-2 ${gameState.currentInput.length === 0 ? 'placeholder-pill-appear' : ''}`}
+              style={{
+                paddingLeft: '1em',
+                paddingRight: '1em',
+                minWidth: '0px',
+                width: gameState.currentInput.length === 0 
+                  ? '150px'
+                  : `${Math.max(24, 24 + (gameState.currentInput.length * 24))}px`,
+                height: 'auto',
+                textAlign: 'center',
+              }}
+            >
+              {gameState.currentInput.length > 0 
+                ? gameState.currentInput.map((input) => input.letter).join('')
+                : 'Type or click A–J'
+              }
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

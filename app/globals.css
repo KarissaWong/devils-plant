@@ -55,7 +55,7 @@ body {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -149,8 +149,41 @@ body {
   }
 }
 
+/* Page load fade-in animations */
+@keyframes pageFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes backgroundFadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.page-fade-in {
+  animation: pageFadeIn 0.8s ease-out forwards;
+  opacity: 0; /* Start invisible */
+}
+
+.background-fade-in {
+  animation: backgroundFadeIn 1.2s ease-out forwards;
+  opacity: 0; /* Start invisible */
+}
+
+/* Adjust existing animation delays for cohesive sequence */
 .target-appear {
   animation: targetAppear 0.5s ease-out forwards;
+  animation-delay: 0.8s; /* Start after background fades in */
   opacity: 0; /* Start invisible */
 }
 
@@ -167,22 +200,22 @@ body {
 /* Placeholder pill animation - appears last */
 .placeholder-pill-appear {
   animation: targetAppear 0.5s ease-out forwards;
-  animation-delay: 0.6s; /* Appears after all tile rows (0.25s + 0.25s buffer) */
+  animation-delay: 1.6s; /* Appears after all tile rows */
   opacity: 0; /* Start invisible */
 }
 
-/* Stagger the animation row by row (top to bottom) */
+/* Stagger the animation row by row (top to bottom) - adjusted delays */
 /* Row 1: tiles 1-4 */
-.tile-row-appear:nth-child(1) { animation-delay: 0.05s; }
+.tile-row-appear:nth-child(1) { animation-delay: 1.1s; }
 
 /* Row 2: tiles 5-7 */
-.tile-row-appear:nth-child(2) { animation-delay: 0.08s; }
+.tile-row-appear:nth-child(2) { animation-delay: 1.14s; }
 
 /* Row 3: tiles 8-9 */
-.tile-row-appear:nth-child(3) { animation-delay: 0.14s; }
+.tile-row-appear:nth-child(3) { animation-delay: 1.2s; }
 
 /* Row 4: tile 10 */
-.tile-row-appear:nth-child(4) { animation-delay: 0.25s; }
+.tile-row-appear:nth-child(4) { animation-delay: 1.31s; }
 
 /* Tile styles (base and input variant) */
 .tile, .input-tile {
@@ -306,7 +339,7 @@ body {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   gap: 1rem;
   flex-wrap: wrap;
 }
