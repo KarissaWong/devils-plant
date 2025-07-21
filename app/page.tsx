@@ -8,7 +8,7 @@ export default function Home() {
   const [gameState, setGameState] = useState<GameState>({
     isPlaying: false,
     score: 0,
-    timeRemaining: 180, // 3 minutes in seconds
+    timeRemaining: 60, // 1 minute in seconds
     targetNumber: 0,
     tiles: [],
     currentInput: [],
@@ -19,7 +19,7 @@ export default function Home() {
   })
 
   const [gameConfig] = useState<GameConfig>({
-    timeLimit: 180,
+    timeLimit: 60,
     bonusInterval: 20, // 20 seconds for bonus points
     maxTiles: 10,
     tilesPerCombination: 3,
