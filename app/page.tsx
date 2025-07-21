@@ -63,6 +63,12 @@ export default function Home() {
     })
   }, [gameConfig.timeLimit, cycleBackground])
 
+  // Automatically start a new game on mount
+  useEffect(() => {
+    startNewGame();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Timer effect
   useEffect(() => {
     if (!gameState.isPlaying) return

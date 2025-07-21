@@ -9,11 +9,11 @@ interface GameBoardProps {
 }
 
 // Helper to render a row of tiles
-function TileRow({ tiles, gameState }: { tiles: Tile[]; gameState: GameState }) {
+function TileRow({ tiles, gameState, className }: { tiles: Tile[]; gameState: GameState; className?: string }) {
   return (
-    <div className="tiles-row">
+    <div className={`tiles-row ${className || ''}`}>
       {tiles.map((tile) => (
-        <TileComponent key={tile.id} tile={tile} gameState={gameState} />
+        <TileComponent key={`${tile.id}-${gameState.targetNumber}`} tile={tile} gameState={gameState} />
       ))}
     </div>
   )
@@ -30,60 +30,23 @@ export default function GameBoard({ gameState, onStartGame, onResetGame }: GameB
     return calculation.replace(/×/g, '*').replace(/÷/g, '/')
   }
 
-  if (!gameState.isPlaying && gameState.score === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-8">
-        <div className="text-white text-lg font-bold mb-4">START SCREEN</div>
-        <h1 className="text-6xl font-bold text-white mb-8">Devil's Plant</h1>
-        <p className="text-xl text-gray-300 text-center max-w-md mb-8">
-          Select 3 tiles in sequence to reach the target number. 
-          Use keyboard letters A-J to select tiles.
-        </p>
-        <button
-          onClick={onStartGame}
-          className="bg-white text-black px-8 py-4 rounded-full text-xl font-bold hover:bg-gray-200 transition-colors"
-        >
-          Start Game
-        </button>
-      </div>
-    )
-  }
-
-  if (!gameState.isPlaying && gameState.score > 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-8">
-        <div className="text-white text-lg font-bold mb-4">GAME OVER SCREEN</div>
-        <h1 className="text-6xl font-bold text-white mb-8">Game Over!</h1>
-        <div className="text-4xl font-bold text-orange-400 mb-8">
-          Final Score: {gameState.score}
-        </div>
-        <button
-          onClick={onResetGame}
-          className="bg-white text-black px-8 py-4 rounded-full text-xl font-bold hover:bg-gray-200 transition-colors"
-        >
-          Play Again
-        </button>
-      </div>
-    )
-  }
-
   return (
     <>
-      <div className="w-full">
+      <div className="w-full" style={{ padding: '2rem' }}>
         {/* Target Number */}
         <div className="flex flex-col items-center mb-4 w-full">
-          <div className="target-number">
+          <div className="target-number target-appear" key={`target-${gameState.targetNumber}`}>
             <span>{gameState.targetNumber}</span>
           </div>
         </div>
 
         {/* Tiles Container */}
-        <div className="mb-4">
-          <div className="tiles-container">
-            <TileRow tiles={gameState.tiles.slice(0, 4)} gameState={gameState} />
-            <TileRow tiles={gameState.tiles.slice(4, 7)} gameState={gameState} />
-            <TileRow tiles={gameState.tiles.slice(7, 9)} gameState={gameState} />
-            <TileRow tiles={gameState.tiles.slice(9, 10)} gameState={gameState} />
+        <div className="mb-4" style={{ padding: '5rem' }}>
+          <div className="tiles-container" key={`tiles-${gameState.targetNumber}`}>
+            <TileRow tiles={gameState.tiles.slice(0, 4)} gameState={gameState} className="tile-row-appear" />
+            <TileRow tiles={gameState.tiles.slice(4, 7)} gameState={gameState} className="tile-row-appear" />
+            <TileRow tiles={gameState.tiles.slice(7, 9)} gameState={gameState} className="tile-row-appear" />
+            <TileRow tiles={gameState.tiles.slice(9, 10)} gameState={gameState} className="tile-row-appear" />
           </div>
         </div>
 
@@ -106,7 +69,12 @@ export default function GameBoard({ gameState, onStartGame, onResetGame }: GameB
         </div>
         {/* Fixed correct answers row */}
         <div className="fixed-pill-row left">
-          {gameState.correctCombinations.map((combo, idx) => (
+          {gameState.correctCombinations.length > 3 && (
+            <span className="pill" style={{ opacity: 0.6, fontWeight: 400 }}>
+              +{gameState.correctCombinations.length - 3} more
+            </span>
+          )}
+          {gameState.correctCombinations.slice(-3).map((combo, idx) => (
             <span key={idx} className="pill">{combo.letters}</span>
           ))}
         </div>
@@ -127,26 +95,37 @@ export default function GameBoard({ gameState, onStartGame, onResetGame }: GameB
           {gameState.currentInput.length > 0 && (
             <div className="flex flex-row mb-2" style={{ display: 'flex', gap: '0.5em' }}>
               {gameState.currentInput.map((input, idx) => (
-                <div key={idx} className="tile input-tile flex items-center justify-center text-xl" style={{width: '64px', height: '64px', minWidth: '64px', minHeight: '64px'}}>
+                <div 
+                  key={`${input.letter}-${idx}`} 
+                  className="tile input-tile input-tile-appear flex items-center justify-center text-xl" 
+                  style={{width: '64px', height: '64px', minWidth: '64px', minHeight: '64px'}}
+                >
                   {input.tile.value}
                 </div>
               ))}
             </div>
           )}
           {/* Pill for letter inputs (responsive width, always visible) */}
-          <div
-            className="pill input-pill text-2xl py-2 mb-2"
-            style={{
-              paddingLeft: '1.5em',
-              paddingRight: '1.5em',
-              minWidth: '64px',
-              textAlign: 'center',
-            }}
-          >
-            {gameState.currentInput.length === 0
-              ? 'Type or click A–J'
-              : gameState.currentInput.map((input) => input.letter).join('')}
-          </div>
+          {(gameState.currentInput.length > 0 || (gameState.correctCombinations.length === 0 && gameState.score === 0)) && (
+            <div
+              className={`pill input-pill text-2xl py-2 mb-2 ${gameState.currentInput.length === 0 ? 'placeholder-pill-appear' : ''}`}
+              style={{
+                paddingLeft: '1em',
+                paddingRight: '1em',
+                minWidth: '0px',
+                width: gameState.currentInput.length === 0 
+                  ? '150px' // Fixed width for placeholder text
+                  : `${Math.max(24, 24 + (gameState.currentInput.length * 24))}px`, // Dynamic width for letters
+                height: 'auto',
+                textAlign: 'center',
+              }}
+            >
+              {gameState.currentInput.length > 0 
+                ? gameState.currentInput.map((input) => input.letter).join('')
+                : 'Type or click A–J' // Show placeholder only at game start
+              }
+            </div>
+          )}
         </div>
       </div>
     </>
