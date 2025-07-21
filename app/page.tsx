@@ -8,7 +8,7 @@ export default function Home() {
   const [gameState, setGameState] = useState<GameState>({
     isPlaying: false,
     score: 0,
-    timeRemaining: 60, // 1 minute in seconds
+    timeRemaining: 120, // 2 minutes in seconds
     targetNumber: 0,
     tiles: [],
     currentInput: [],
@@ -19,7 +19,7 @@ export default function Home() {
   })
 
   const [gameConfig] = useState<GameConfig>({
-    timeLimit: 60,
+    timeLimit: 120,
     bonusInterval: 20, // 20 seconds for bonus points
     maxTiles: 10,
     tilesPerCombination: 3,
@@ -29,6 +29,7 @@ export default function Home() {
   const [showDebugPanel, setShowDebugPanel] = useState(false)
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const [showGameOver, setShowGameOver] = useState(false)
+  const [showAllCombinationsFound, setShowAllCombinationsFound] = useState(false)
 
   // Format time helper function
   const formatTime = (seconds: number): string => {
@@ -85,6 +86,7 @@ export default function Home() {
 
     // Hide game over screen
     setShowGameOver(false)
+    setShowAllCombinationsFound(false)
 
     setGameState({
       isPlaying: true,
@@ -110,7 +112,7 @@ export default function Home() {
 
   // Timer effect
   useEffect(() => {
-    if (!gameState.isPlaying) return
+    if (!gameState.isPlaying || showAllCombinationsFound) return
 
     const timer = setInterval(() => {
       setGameState(prev => {
@@ -146,7 +148,7 @@ export default function Home() {
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [gameState.isPlaying, gameConfig.bonusInterval])
+  }, [gameState.isPlaying, gameConfig.bonusInterval, showAllCombinationsFound])
 
   // Check if current input forms a valid combination
   const checkCombination = useCallback(() => {
@@ -170,12 +172,26 @@ export default function Home() {
     const isCorrect = result === gameState.targetNumber
 
     if (isCorrect) {
-      setGameState(prev => ({
-        ...prev,
-        score: prev.score + 1,
-        correctCombinations: [...prev.correctCombinations, { letters: combination, calculation }],
-        currentInput: []
-      }))
+      const newCorrectCombinations = [...gameState.correctCombinations, { letters: combination, calculation }]
+      
+      // Check if all combinations are found
+      if (newCorrectCombinations.length >= gameState.allSolutions.length) {
+        setShowAllCombinationsFound(true)
+        setGameState(prev => ({
+          ...prev,
+          isPlaying: false,
+          score: prev.score + 1,
+          correctCombinations: newCorrectCombinations,
+          currentInput: []
+        }))
+      } else {
+        setGameState(prev => ({
+          ...prev,
+          score: prev.score + 1,
+          correctCombinations: newCorrectCombinations,
+          currentInput: []
+        }))
+      }
     } else {
       setGameState(prev => ({
         ...prev,
@@ -183,7 +199,7 @@ export default function Home() {
         currentInput: []
       }))
     }
-  }, [gameState.currentInput, gameState.targetNumber, gameState.correctCombinations])
+  }, [gameState.currentInput, gameState.targetNumber, gameState.correctCombinations, gameState.allSolutions.length])
 
   // Handle keyboard input
   useEffect(() => {
@@ -287,6 +303,92 @@ export default function Home() {
             }}>
               Final Score: <strong>{gameState.score} points</strong>
             </p>
+            <button
+              onClick={startNewGame}
+              style={{
+                background: '#44272C',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50px',
+                padding: '1rem 2rem',
+                fontSize: '1.1rem',
+                fontWeight: 300,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#5a3238'
+                e.currentTarget.style.transform = 'scale(1.05)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#44272C'
+                e.currentTarget.style.transform = 'scale(1)'
+              }}
+            >
+              Play Again
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* All Combinations Found Screen */}
+      {showAllCombinationsFound && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10000,
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '20px',
+            padding: '3rem',
+            textAlign: 'center',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+            maxWidth: '400px',
+            width: '90%',
+          }}>
+            <h2 style={{
+              color: '#44272C',
+              fontSize: '2rem',
+              fontWeight: 300,
+              marginBottom: '1rem',
+            }}>
+              Congratulations!
+            </h2>
+            <p style={{
+              color: '#44272C',
+              fontSize: '1.2rem',
+              marginBottom: '1rem',
+            }}>
+              You've found all possible combinations!
+            </p>
+            <div style={{
+              marginBottom: '2rem',
+              padding: '1rem',
+              background: '#f8f9fa',
+              borderRadius: '10px',
+            }}>
+              <p style={{
+                color: '#44272C',
+                fontSize: '1.1rem',
+                marginBottom: '0.5rem',
+              }}>
+                Final Score: <strong>{gameState.score} points</strong>
+              </p>
+              <p style={{
+                color: '#44272C',
+                fontSize: '1.1rem',
+              }}>
+                Time Remaining: <strong>{formatTime(gameState.timeRemaining)}</strong>
+              </p>
+            </div>
             <button
               onClick={startNewGame}
               style={{
