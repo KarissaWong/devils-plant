@@ -1,154 +1,130 @@
-# Devil's Plant - Arithmetic Game
+# Devil's Plant - Math Puzzle Game
 
-A challenging web-based arithmetic game where players select 3 tiles in sequence to reach a target number within a 3-minute time limit.
+A beautiful, interactive math puzzle game built with Next.js 14, React 18, and TypeScript. Players must find combinations of three tiles that add up to a target number within a time limit.
 
-## 🎮 Game Rules
+## 🎮 Game Features
 
-### Objective
-- Select exactly 3 tiles in sequence to reach the target number
-- Score as many points as possible within the 3-minute time limit
-- Each tile can only be used once per 3-tile combination
-
-### Scoring System
-- **Correct Answer**: +1 point
-- **Incorrect Answer**: -1 point
-- **Bonus Points**: +1 point every 20 seconds if all solutions are exhausted but time remains
-
-### Calculation Rules
-1. **First Tile**: Operator is ignored, only the number value is used
-2. **Order of Operations**: Multiplication (×) and Division (÷) take priority over Addition (+) and Subtraction (-)
-3. **Tile Usage**: Each tile can only be used once per 3-tile combination
-
-### Example
-For target number 9 with tiles:
-- A = -11, B = +7, C = ÷9, D = +9, E = -10, F = ÷5, G = ×6, H = ÷4, I = ×3, J = +1
-
-Valid solutions:
-- IJG = 3+1×6 = 9
-- GJI = 6×1+3 = 9
-- EFB = 10÷5+7 = 9
-- AEF = 11-10÷5 = 9
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 18+ 
-- npm or yarn
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd devils-plant
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Run the development server:
-```bash
-npm run dev
-```
-
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
-
-### Build for Production
-
-```bash
-npm run build
-npm start
-```
+- **Dynamic Tile Generation**: Random tiles with values 1-9
+- **Target Number Calculation**: Automatically generated based on tile combinations
+- **Time-Based Challenge**: 2-minute timer with bonus points
+- **Multiple Solutions**: Each puzzle has multiple valid combinations
+- **Beautiful Animations**: Smooth transitions and visual feedback
+- **Keyboard Controls**: Full keyboard support for tile selection
+- **Responsive Design**: Works on desktop and mobile devices
+- **Background Cycling**: Dynamic background images that change between games
 
 ## 🎯 How to Play
 
-1. **Start the Game**: Click "Start Game" to begin
-2. **Select Tiles**: Use keyboard letters A-J to select tiles
-3. **View Input**: Your selections appear in the input area at the bottom
-4. **Submit**: After selecting 3 tiles, the combination is automatically checked
-5. **Track Progress**: View correct combinations and your score
-6. **Time Management**: Complete as many combinations as possible within 3 minutes
+1. **Select Tiles**: Click or press keys A-J to select tiles
+2. **Find Combinations**: Find sets of 3 tiles that add up to the target number
+3. **Score Points**: +1 point for correct combinations, -1 for incorrect
+4. **Beat the Clock**: Complete all combinations before time runs out
+5. **Win**: Find all possible combinations to win!
 
-## 🛠️ Technical Stack
+## 🚀 Deployment
 
-- **Framework**: Next.js 14 with React 18
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS with custom CSS
-- **Architecture**: Modern React patterns with hooks and functional components
+### Vercel Deployment (Recommended)
+
+1. **Connect to Vercel**:
+   - Go to [vercel.com](https://vercel.com)
+   - Sign in with your GitHub account
+   - Click "New Project"
+   - Import your `devils-plant` repository
+
+2. **Configure Build Settings**:
+   - **Framework Preset**: Next.js
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `.next`
+   - **Install Command**: `npm install`
+
+3. **Environment Variables** (if needed):
+   - No environment variables required for this project
+
+4. **Deploy**:
+   - Click "Deploy"
+   - Vercel will automatically build and deploy your app
+   - Your app will be available at `https://your-project-name.vercel.app`
+
+### Manual Deployment
+
+```bash
+# Install dependencies
+npm install
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+```
+
+## 🛠️ Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+
+# Run linting
+npm run lint
+```
 
 ## 📁 Project Structure
 
 ```
 devils-plant/
-├── app/                    # Next.js app directory
-│   ├── globals.css        # Global styles
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Main game page
+├── app/                    # Next.js 14 app directory
+│   ├── page.tsx           # Main game component
+│   ├── globals.css        # Global styles and animations
+│   ├── error.tsx          # Error boundary
+│   └── global-error.tsx   # Global error boundary
 ├── components/            # React components
-│   └── GameBoard.tsx      # Main game board component
+│   └── GameBoard.tsx      # Game board component
 ├── types/                 # TypeScript type definitions
 │   └── game.ts           # Game-related types
-├── GAME_CONTEXT.md        # Detailed game rules and context
-├── package.json           # Dependencies and scripts
-├── tailwind.config.js     # Tailwind configuration
-└── tsconfig.json          # TypeScript configuration
+├── public/               # Static assets
+│   └── background-images/ # Background images
+└── package.json          # Dependencies and scripts
 ```
 
-## 🎨 Features
+## 🎨 Technologies Used
 
-- **Responsive Design**: Works on desktop and mobile devices
-- **Keyboard Controls**: Intuitive A-J key selection
-- **Real-time Feedback**: Immediate visual feedback for selections
-- **Timer System**: 3-minute countdown with bonus point system
-- **Score Tracking**: Real-time score updates
-- **Solution History**: Track all correct combinations found
-- **Modern UI**: Clean, glassmorphism design with smooth animations
+- **Next.js 14**: React framework with app router
+- **React 18**: UI library with hooks
+- **TypeScript**: Type-safe JavaScript
+- **Tailwind CSS**: Utility-first CSS framework
+- **CSS Animations**: Custom keyframe animations
+- **GitHub**: Version control and hosting
 
-## 🔧 Customization
+## 🎯 Game Logic
 
-### Adding Custom Tiles
-Modify the `generateTiles()` function in `app/page.tsx` to change tile generation logic.
+- **Tile Generation**: Random tiles with values 1-9
+- **Target Calculation**: Sum of 3 random tiles
+- **Solution Finding**: Algorithm finds all valid combinations
+- **Scoring System**: +1 for correct, -1 for incorrect
+- **Timer Management**: 2-minute countdown with win condition
 
-### Adjusting Game Rules
-Update the `GameConfig` interface and related logic to modify:
-- Time limit
-- Bonus point intervals
-- Number of tiles
-- Tiles per combination
+## 🌟 Features
 
-### Styling Changes
-Modify `app/globals.css` to customize the visual appearance of the game.
+- **Smooth Animations**: Fade-ins, tile animations, pill growth
+- **Keyboard Support**: Full keyboard navigation
+- **Debug Panel**: Toggle with Shift+H for development
+- **Game Over Screens**: Timer expiration and completion screens
+- **Image Preloading**: Smooth background transitions
+- **Responsive Layout**: Works on all screen sizes
 
-## 🐛 Debug Mode
+## 📝 License
 
-During development, the game shows calculations for debugging purposes. This feature is automatically removed in production builds.
+This project is open source and available under the MIT License.
 
-## 📱 Browser Support
+---
 
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## 🎯 Future Enhancements
-
-- Sound effects and music
-- Multiple difficulty levels
-- Leaderboard system
-- Achievement system
-- Custom tile themes
-- Multiplayer mode 
+**Ready to play?** Deploy to Vercel and start solving puzzles! 🎮✨ 
